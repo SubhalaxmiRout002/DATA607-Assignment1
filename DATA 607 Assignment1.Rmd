@@ -1,0 +1,174 @@
+---
+title: "DATA 607 Assignment 1"
+author: "Subhalaxmi Rout"
+output:
+  pdf_document: 
+    fig_width: 10
+    toc: yes
+  extra_dependencies: ["geometry", "multicol", "multirow"]
+  html_document: default
+urlcolor: blue
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Overview
+Basically from the worst driver dataset, we need to find out where is America's worst driver. The given data set shows different states of America and accident percentage based on speed, alcohol, distraction. This data also shows the driver's car insurance and losses incurred by insurance companies for collisions per insured driver. 
+
+Below link for the reference.
+https://fivethirtyeight.com/features/which-state-has-the-worst-drivers/
+
+## **Load Data into R**
+
+```{r load-present-data, echo=TRUE}
+library(plyr)
+library(devtools)
+library(RCurl)
+
+x <- 
+getURL("https://raw.githubusercontent.com/fivethirtyeight/data/master/bad-drivers/bad-drivers.csv") 
+worst_driver <-data.frame(read.csv(text=x,  header=FALSE))
+dim(worst_driver)
+head(worst_driver)
+```
+
+## Column names
+* States = name of states in USA 
+* Fatal_collisions_per_billion_mile = Number of drivers involved in fatal collisions per billion mile (National Highway Traffic Safety Administration, 2012)
+* Fatal_collision_percent_speeding = Percentage Of Drivers Involved In Fatal Collisions Who Were Speeding(National Highway Traffic Safety Administration, 2009)
+* Fatal_collision_percent_alcohol = Percentage Of Drivers Involved In Fatal Collisions Who Were Alcohol-Impaired(National Highway Traffic Safety Administration, 2012)
+* Fatal_collision_percent_not_distracted = Percentage Of Drivers Involved In Fatal Collisions Who Were Not Distracted(National Highway Traffic Safety Administration, 2012)
+* Fatal_collision_percent_no_accident = Percentage Of Drivers Involved In Fatal Collisions Who Had Not Been Involved In Any Previous Accidents(National Highway Traffic Safety Administration, 2012)
+* Car_insurence = Car Insurance Premiums(National Association of Insurance Commissioners, 2011)
+* Insurance_paid = Losses incurred by insurance companies for collisions per insured driver(National Association of Insurance Commissioners, 2010)
+
+## Rename column headers
+```{r eval=TRUE}
+colnames(worst_driver) <- c('States','Fatal_collisions_per_billion_mile'
+,'Fatal_collision_percent_speeding','Fatal_collision_percent_alcohol'
+,'Fatal_collision_percent_not_distracted','Fatal_collision_percent_no_accident'
+, 'Car_insurence', 'Insurance_paid')
+names(worst_driver)
+```
+## Drivers involved in fatal collision while speeding
+
+```{r eval=TRUE, fig.height = 30}
+worst_driver_new  <- as.data.frame(worst_driver[,c(1,2,3)])
+colnames(worst_driver_new) <- c("States", "Fatal_collisions_per_billion_mile"
+, "Fatal_collision_speeding")
+df <- worst_driver_new
+df = df[-1,]
+View(df)
+States <- df$States
+miles <- as.integer(df$Fatal_collisions_per_billion_mile)
+speed <- (as.integer(df$Fatal_collision_speeding)/100)
+collision_speeding <- miles*speed
+barplot(collision_speeding, 
+        names.arg = c("Alabama","Alaska","Arizona","Arkansas","California"
+                                          ,"Colorado","Connecticut","Delaware",
+"District of Columbia","Florida","Georgia"
+,"Hawaii","Idaho","Illinois","Indiana","Iowa"
+,"Kansas","Kentucky","Louisiana",
+"Maine","Maryland","Massachusetts","Michigan"
+,"Minnesota","Mississippi","Missouri"
+,"Montana","Nebraska","Nevada",
+"New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio"
+,"Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina"
+,"South Dakota","Tennessee","Texas","Utah",
+"Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"),
+ylab = "States",
+main = "Drivers involved in fatal collision while speeding",
+col = c("blue"),
+horiz = TRUE)
+```
+
+The data available for speeding-related fatalities is from 2009, according to the NHTSA 31% of fatalities occurred while a driver was speeding. In Mississippi, just 15%  of traffic fatalities occurred while a driver was speeding, while in Pennsylvania, the share was 50%.
+
+# Driver Involved in fatal collision while alcohol impaired
+
+```{r eval=TRUE, collapse = TRUE, fig.height = 30}
+
+worst_driver_new  <- as.data.frame(worst_driver[,c(1,2,4)])
+colnames(worst_driver_new) <- c("States", "Fatal_collisions_per_billion_mile"
+, "Fatal_collision_alcohol_impaired")
+df <- worst_driver_new
+df = df[-1,]
+View(df)
+States <- df$States
+miles <- as.integer(df$Fatal_collisions_per_billion_mile)
+alcohol_impaired <- (as.integer(df$Fatal_collision_alcohol_impaired)/100)
+alcohol_effect <- miles*alcohol_impaired
+alcohol_effect
+barplot(alcohol_effect, names.arg = c("Alabama","Alaska","Arizona","Arkansas"
+,"California","Colorado","Connecticut","Delaware","District of Columbia","Florida"
+,"Georgia","Hawaii","Idaho","Illinois","Indiana"
+,"Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts"
+,"Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada",
+"New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota"
+,"Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina"
+,"South Dakota","Tennessee","Texas","Utah",
+"Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"),
+ylab = "States",
+main = "Drivers involved in fatal collision while alcohol impaired",
+col = c("yellow"),
+horiz = TRUE)
+```
+
+Drinking, while driving is irresponsible behavior. 31% percent of fatalities in 2012 occurred while a driver was alcohol-impaired. In Montana, 44% of traffic fatalities that year involved a driver who was alcohol-impaired, but in Utah, it was 16%.
+
+# Average combined Insurance Premium
+```{r data-premium, eval=TRUE, fig.height = 30}
+worst_driver_new  <- as.data.frame(worst_driver[,c(1,7)])
+colnames(worst_driver_new) <- c("States", "Fatal_insurance_premium")
+df <- worst_driver_new
+df = df[-1,]
+View(df)
+States <- df$States
+car_insurance <- as.integer(df$Fatal_insurance_premium)
+barplot(car_insurance, names.arg = c("Alabama","Alaska","Arizona","Arkansas","California"
+,"Colorado","Connecticut","Delaware","District of Columbia"
+,"Florida","Georgia","Hawaii","Idaho","Illinois"
+,"Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland"
+,"Massachusetts","Michigan","Minnesota","Mississippi","Missouri"
+,"Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico"
+,"New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon"
+,"Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah",
+"Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"),
+ylab = "States",
+main = "Averange combined Insurance Premium",
+col = c("orange"),
+horiz = TRUE)
+```
+
+New Jersey found a high-risk driver. The car insurance cost is $1302, which is very expensive comparatively other states. In Idaho, car insurance cost was $641. So, less insurance premium means the low-risk driver and high premium means high-risk drivers.
+
+# Losses Incurred by Insurance company
+```{r losses-incurred, eval=TRUE, fig.height = 30}
+worst_driver_new  <- as.data.frame(worst_driver[,c(1,8)])
+colnames(worst_driver_new) <- c("States", "Collision_per_insured_driver")
+df <- worst_driver_new
+View(df)
+df = df[-1,]
+States <- df$States
+collision_per_insured <- as.integer(df$Collision_per_insured_driver)
+barplot(car_insurance, names.arg = c("Alabama","Alaska","Arizona","Arkansas"
+,"California","Colorado","Connecticut","Delaware","District of Columbia","Florida"
+,"Georgia","Hawaii","Idaho","Illinois","Indiana"
+,"Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts"
+,"Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada",
+"New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota"
+,"Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island"
+,"South Carolina","South Dakota","Tennessee","Texas","Utah",
+"Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"),
+ylab = "States",
+main = "Losses Incurred by Insurance company",
+col = c("red"),
+horiz = TRUE)
+```
+
+Idahoans costing insurers $83 each for collisions in 2010. New Jersians costing insurers $160 for each collision. But Louisiana was $195, the most expensive insurer.
+
+# Conclusion
+The number of car crashes, even fatal ones, just isn’t clear to understand who is and who isn’t a bad driver. But we can say that the insurance company thinks that North Carolinians deserve low prices compared to the national average because each of the insured drivers only cost them $127.8 in collision losses in 2010.
